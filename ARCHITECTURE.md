@@ -17,7 +17,8 @@ flowchart LR
 
 ## Packages
 
-- `cmd/blackbelt`: argument parsing and process exit behavior.
+- `cmd/blackbelt`: process entry point and exit behavior.
+- `internal/cli`: Cobra root command and future subcommand registration.
 - `internal/blackbelt` is divided by responsibility:
   - `app.go` orchestrates one invocation.
   - `model.go`, `topology.go`, and `graph.go` own the stack model and traversal.
@@ -27,7 +28,7 @@ flowchart LR
   - `update.go` performs the narrowly scoped GitHub mutations.
   - `util.go` contains deliberately small, dependency-free decoding helpers.
 
-The internal package has no dependencies beyond the Go standard library. `Runner` is an interface so unit tests can exercise discovery and rendering without jj, GitHub, or network access.
+The stack engine has no dependencies beyond the Go standard library; Cobra is confined to `internal/cli`. `Runner` is an interface so unit tests can exercise discovery and rendering without jj, GitHub, or network access.
 
 ## Data flow
 
