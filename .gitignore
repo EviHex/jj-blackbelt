@@ -1,0 +1,6 @@
+# Deliberately local product/design exploration. See FUTURE.md.
+FUTURE.md
+
+# Build outputs
+bin/
+coverage.out
