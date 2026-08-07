@@ -5,6 +5,8 @@ import (
 	"context"
 
 	"github.com/pinglei-he/blackbelt/internal/config"
+	"github.com/pinglei-he/blackbelt/internal/doctor"
+	"github.com/pinglei-he/blackbelt/internal/version"
 	"github.com/spf13/cobra"
 )
 
@@ -24,10 +26,25 @@ func newRootCommand(value config.Config) *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		Args:          cobra.NoArgs,
+		Version:       version.Current,
 		RunE: func(command *cobra.Command, _ []string) error {
 			return command.Help()
 		},
 	}
-	command.AddCommand(newStackCommand(value))
+	command.AddCommand(newStackCommand(value), newDoctorCommand(), newUtilCommand())
+	return command
+}
+
+func newDoctorCommand() *cobra.Command {
+	var jsonOutput bool
+	command := &cobra.Command{
+		Use:   "doctor",
+		Short: "Check blackbelt's jj and GitHub prerequisites",
+		Args:  cobra.NoArgs,
+		RunE: func(command *cobra.Command, _ []string) error {
+			return doctor.Run(command.Context(), jsonOutput)
+		},
+	}
+	command.Flags().BoolVar(&jsonOutput, "json", false, "write check results as JSON")
 	return command
 }
