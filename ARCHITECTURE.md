@@ -18,7 +18,14 @@ flowchart LR
 ## Packages
 
 - `cmd/blackbelt`: argument parsing and process exit behavior.
-- `internal/blackbelt`: domain model, command runner, discovery, GitHub query construction, history persistence, validation, renderers, and comment updates.
+- `internal/blackbelt` is divided by responsibility:
+  - `app.go` orchestrates one invocation.
+  - `model.go`, `topology.go`, and `graph.go` own the stack model and traversal.
+  - `command.go`, `jj.go`, and `github.go` isolate external-command boundaries.
+  - `history.go` retains merged-node metadata.
+  - `render.go` owns terminal and GitHub HTML presentation.
+  - `update.go` performs the narrowly scoped GitHub mutations.
+  - `util.go` contains deliberately small, dependency-free decoding helpers.
 
 The internal package has no dependencies beyond the Go standard library. `Runner` is an interface so unit tests can exercise discovery and rendering without jj, GitHub, or network access.
 

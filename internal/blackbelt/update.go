@@ -1,0 +1,52 @@
+package blackbelt
+
+import (
+	"context"
+	"fmt"
+	"os"
+)
+
+func update(ctx context.Context, r runner, repo string, number int, comment map[string]any, body string) error {
+	p, e := os.CreateTemp("", "blackbelt-*.html")
+	if e != nil {
+		return e
+	}
+	defer os.Remove(p.Name())
+	if _, e = p.WriteString(body); e != nil {
+		return e
+	}
+	if e = p.Close(); e != nil {
+		return e
+	}
+	if comment == nil {
+		_, e = must(ctx, r, "gh", "pr", "comment", fmt.Sprint(number), "--repo", repo, "--body-file", p.Name())
+	} else {
+		_, e = must(ctx, r, "gh", "api", "-X", "PATCH", fmt.Sprintf("repos/%s/issues/comments/%v", repo, comment["databaseId"]), "-F", "body=@"+p.Name())
+	}
+	return e
+}
+func currentNumber(ctx context.Context, r runner, prs []PullRequest) int {
+	by := map[string]int{}
+	for _, p := range prs {
+		if p.CommitID != "" {
+			by[p.CommitID] = p.Number
+		}
+	}
+	at, _ := ids(ctx, r, "@")
+	if len(at) > 0 && by[at[0]] != 0 {
+		return by[at[0]]
+	}
+	return 0
+}
+func hasPR(prs []PullRequest, n int) bool {
+	for _, p := range prs {
+		if p.Number == n {
+			return true
+		}
+	}
+	return false
+}
+func terminal(f *os.File) bool {
+	info, e := f.Stat()
+	return e == nil && (info.Mode()&os.ModeCharDevice) != 0 && os.Getenv("TERM") != "dumb"
+}
