@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/BurntSushi/toml"
@@ -64,9 +65,19 @@ func loadFiles(paths []string) (Config, error) {
 
 // Paths returns configuration files from lowest to highest precedence.
 func Paths(ctx context.Context) ([]string, error) {
-	directory, err := os.UserConfigDir()
-	if err != nil {
-		return nil, fmt.Errorf("resolve user config directory: %w", err)
+	directory := os.Getenv("XDG_CONFIG_HOME")
+	if directory == "" {
+		var err error
+		if runtime.GOOS == "windows" {
+			directory, err = os.UserConfigDir()
+		} else {
+			var home string
+			home, err = os.UserHomeDir()
+			directory = filepath.Join(home, ".config")
+		}
+		if err != nil {
+			return nil, fmt.Errorf("resolve user config directory: %w", err)
+		}
 	}
 	paths := []string{filepath.Join(directory, "blackbelt", "config.toml")}
 	command := exec.CommandContext(ctx, "jj", "--ignore-working-copy", "root")

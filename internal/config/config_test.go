@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -30,5 +31,18 @@ func TestLoadFilesAppliesLayersInOrder(t *testing.T) {
 	}
 	if value.Stack.DefaultCommand != "log" || value.Stack.Log.Revset != "mine()" || !value.Stack.Log.All {
 		t.Fatalf("loadFiles() = %#v", value)
+	}
+}
+
+func TestPathsHonorsXDGConfigHome(t *testing.T) {
+	directory := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", directory)
+	paths, err := Paths(context.Background())
+	if err != nil {
+		t.Fatalf("Paths() error = %v", err)
+	}
+	want := filepath.Join(directory, "blackbelt", "config.toml")
+	if len(paths) == 0 || paths[0] != want {
+		t.Fatalf("Paths()[0] = %q, want %q", paths[0], want)
 	}
 }

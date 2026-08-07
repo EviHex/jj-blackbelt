@@ -3,7 +3,7 @@
 blackbelt reads layered TOML configuration. Later files override values from earlier files:
 
 1. Built-in defaults.
-2. User configuration at the platform configuration directory (`~/.config/blackbelt/config.toml` on macOS and Linux when `XDG_CONFIG_HOME` is unset).
+2. User configuration at `$XDG_CONFIG_HOME/blackbelt/config.toml`, or `~/.config/blackbelt/config.toml` on macOS and Linux when `XDG_CONFIG_HOME` is unset. Windows uses its standard user configuration directory.
 3. Repository-local configuration at `<jj-root>/.jj/blackbelt.toml`. This file is private to the local jj repository and is not committed.
 
 ```toml
