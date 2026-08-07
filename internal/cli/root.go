@@ -4,9 +4,9 @@ package cli
 import (
 	"context"
 
-	"github.com/pinglei-he/blackbelt/internal/config"
-	"github.com/pinglei-he/blackbelt/internal/doctor"
-	"github.com/pinglei-he/blackbelt/internal/version"
+	"github.com/EviHex/jj-blackbelt/internal/config"
+	"github.com/EviHex/jj-blackbelt/internal/doctor"
+	"github.com/EviHex/jj-blackbelt/internal/version"
 	"github.com/spf13/cobra"
 )
 

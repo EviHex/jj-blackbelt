@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pinglei-he/blackbelt/internal/cli"
+	"github.com/EviHex/jj-blackbelt/internal/cli"
 )
 
 func main() {

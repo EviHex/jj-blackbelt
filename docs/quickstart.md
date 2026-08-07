@@ -5,7 +5,7 @@ If you already have `jj` and an authenticated `gh`, blackbelt takes three comman
 ## 1. Install
 
 ```console
-go install github.com/pinglei-he/blackbelt/cmd/bb@latest
+go install github.com/EviHex/jj-blackbelt/cmd/bb@latest
 ```
 
 Make sure Go's binary directory is on your `PATH` (usually `~/go/bin`). blackbelt currently requires Go 1.24+, jj 0.40+, and the GitHub CLI.

@@ -1,4 +1,4 @@
-module github.com/pinglei-he/blackbelt
+module github.com/EviHex/jj-blackbelt
 
 go 1.24
 

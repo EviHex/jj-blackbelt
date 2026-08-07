@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/pinglei-he/blackbelt/internal/blackbelt"
-	"github.com/pinglei-he/blackbelt/internal/config"
+	"github.com/EviHex/jj-blackbelt/internal/blackbelt"
+	"github.com/EviHex/jj-blackbelt/internal/config"
 	"github.com/spf13/cobra"
 )
 

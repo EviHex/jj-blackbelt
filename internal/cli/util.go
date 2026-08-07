@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/pinglei-he/blackbelt/internal/jjalias"
+	"github.com/EviHex/jj-blackbelt/internal/jjalias"
 	"github.com/spf13/cobra"
 )
 

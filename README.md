@@ -15,7 +15,7 @@
 If you already use `jj` and `gh`, this is the whole setup:
 
 ```console
-go install github.com/pinglei-he/blackbelt/cmd/bb@latest
+go install github.com/EviHex/jj-blackbelt/cmd/bb@latest
 bb doctor
 bb util alias
 ```

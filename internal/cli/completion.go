@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/pinglei-he/blackbelt/internal/completion"
+	"github.com/EviHex/jj-blackbelt/internal/completion"
 	"github.com/spf13/cobra"
 )
 

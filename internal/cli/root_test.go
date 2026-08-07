@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pinglei-he/blackbelt/internal/config"
+	"github.com/EviHex/jj-blackbelt/internal/config"
 )
 
 func TestRootCommandHelp(t *testing.T) {
