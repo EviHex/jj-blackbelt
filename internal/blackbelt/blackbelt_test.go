@@ -30,3 +30,27 @@ func TestStatusAndCommitLimit(t *testing.T) {
 		t.Fatalf("commits = %#v", got)
 	}
 }
+
+func TestValidateBasesSkipsMergedParents(t *testing.T) {
+	merged := 1
+	prs := []PullRequest{
+		{Number: 1, State: "MERGED", Head: "parent", Base: "prod"},
+		{Number: 2, State: "OPEN", Head: "child", Base: "prod", Parent: &merged},
+	}
+	validate(prs, "prod")
+	if prs[1].BaseWarning != "" || prs[1].ExpectedBase != "prod" {
+		t.Fatalf("merged parent validation = %#v", prs[1])
+	}
+}
+
+func TestValidateBasesReportsLiveParentMismatch(t *testing.T) {
+	parent := 1
+	prs := []PullRequest{
+		{Number: 1, State: "OPEN", Head: "parent", Base: "prod"},
+		{Number: 2, State: "OPEN", Head: "child", Base: "prod", Parent: &parent},
+	}
+	validate(prs, "prod")
+	if prs[1].ExpectedBase != "parent" || prs[1].BaseWarning == "" {
+		t.Fatalf("live parent validation = %#v", prs[1])
+	}
+}

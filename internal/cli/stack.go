@@ -25,7 +25,7 @@ func newStackCommand(value config.Config) *cobra.Command {
 			}
 		},
 	}
-	command.AddCommand(newStackLogCommand(value), newStackDrawCommand())
+	command.AddCommand(newStackLogCommand(value), newStackDrawCommand(), newStackOrderCommand(value))
 	return command
 }
 
@@ -59,4 +59,26 @@ func newStackDrawCommand() *cobra.Command {
 			return blackbelt.Run(command.Context(), blackbelt.Options{})
 		},
 	}
+}
+
+func newStackOrderCommand(value config.Config) *cobra.Command {
+	all := false
+	fix := false
+	jsonOutput := false
+	command := &cobra.Command{
+		Use:   "order",
+		Short: "Check whether GitHub PR bases match the jj stack",
+		Long: "Check every open PR's GitHub base against its nearest unmerged parent in the jj stack. " +
+			"The command is read-only unless --fix is supplied.",
+		Args: cobra.NoArgs,
+		RunE: func(command *cobra.Command, _ []string) error {
+			return blackbelt.Order(command.Context(), blackbelt.OrderOptions{
+				All: all, Fix: fix, JSON: jsonOutput, Revset: value.Stack.Log.Revset,
+			})
+		},
+	}
+	command.Flags().BoolVarP(&all, "all", "a", all, "check all tracked PR stacks")
+	command.Flags().BoolVar(&fix, "fix", fix, "retarget incorrect PR bases on GitHub")
+	command.Flags().BoolVar(&jsonOutput, "json", jsonOutput, "write diagnostics as JSON")
+	return command
 }

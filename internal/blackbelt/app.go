@@ -62,6 +62,71 @@ func run(ctx context.Context, r runner, options Options, out, errOut *os.File) e
 	return nil
 }
 
+// OrderOptions controls stack base validation and repair.
+type OrderOptions struct {
+	All    bool
+	Fix    bool
+	JSON   bool
+	Revset string
+}
+
+// Order checks that every open PR targets its nearest unmerged stack parent.
+func Order(ctx context.Context, options OrderOptions) error {
+	return order(ctx, shell{}, options, os.Stdout)
+}
+
+type orderIssue struct {
+	Number   int    `json:"number"`
+	Head     string `json:"head"`
+	Actual   string `json:"actual_base"`
+	Expected string `json:"expected_base"`
+}
+
+func order(ctx context.Context, r runner, options OrderOptions, out *os.File) error {
+	_, repo, _, prs, _, _, err := loadStack(ctx, r, Options{All: options.All, Revset: options.Revset})
+	if err != nil {
+		return err
+	}
+	issues := make([]orderIssue, 0)
+	for _, pr := range prs {
+		if pr.BaseWarning != "" {
+			issues = append(issues, orderIssue{Number: pr.Number, Head: pr.Head, Actual: pr.Base, Expected: pr.ExpectedBase})
+		}
+	}
+	if options.JSON {
+		encoder := json.NewEncoder(out)
+		encoder.SetIndent("", "  ")
+		if err := encoder.Encode(struct {
+			Repository string       `json:"repository"`
+			Valid      bool         `json:"valid"`
+			Issues     []orderIssue `json:"issues"`
+		}{repo, len(issues) == 0, issues}); err != nil {
+			return err
+		}
+	} else if len(issues) == 0 {
+		fmt.Fprintln(out, "✓ PR bases are correctly ordered")
+	} else {
+		for _, issue := range issues {
+			fmt.Fprintf(out, "PR #%d targets %q; expected %q\n", issue.Number, issue.Actual, issue.Expected)
+		}
+	}
+	if len(issues) == 0 {
+		return nil
+	}
+	if !options.Fix {
+		return fmt.Errorf("%d PR base mismatch%s; rerun with --fix to repair", len(issues), plural(len(issues)))
+	}
+	for _, issue := range issues {
+		if _, err := must(ctx, r, "gh", "pr", "edit", fmt.Sprint(issue.Number), "--repo", repo, "--base", issue.Expected); err != nil {
+			return fmt.Errorf("repair PR #%d: %w", issue.Number, err)
+		}
+		if !options.JSON {
+			fmt.Fprintf(out, "✓ PR #%d now targets %s\n", issue.Number, issue.Expected)
+		}
+	}
+	return nil
+}
+
 func loadStack(ctx context.Context, r runner, options Options) (string, string, string, []PullRequest, map[int][]map[string]any, map[int]PullRequest, error) {
 	root := strings.TrimSpace(runCmd(ctx, r, "jj", "--ignore-working-copy", "root"))
 	if root == "" {
