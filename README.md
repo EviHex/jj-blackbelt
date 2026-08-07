@@ -8,7 +8,7 @@
 [Documentation](https://evihex.github.io/jj-blackbelt/) · [Quickstart](https://evihex.github.io/jj-blackbelt/quickstart/) · [Command reference](https://evihex.github.io/jj-blackbelt/commands/)
 </div>
 
-`bb` is a lightweight companion to [Jujutsu](https://github.com/jj-vcs/jj) and the GitHub CLI. Keep creating, editing, and rebasing changes with `jj`; blackbelt discovers the PR tree you already made, helps you navigate it, checks its GitHub bases, and gives reviewers a clickable stack diagram.
+`bb` is a lightweight companion to [Jujutsu](https://github.com/jj-vcs/jj). Bring your own jj workflow, we help your reviewers understand what's going on. Keep creating, editing, and rebasing changes in `jj`; blackbelt discovers the PR tree you already made, helps you navigate it, checks its GitHub bases and status, and gives reviewers a clickable stack diagram.
 
 ## Quickstart
 
@@ -58,9 +58,9 @@ bb util alias [--dry-run]
 
 `bb stack` defaults to `bb stack log`; that default and stack selection are configurable in TOML. See the [configuration guide](https://evihex.github.io/jj-blackbelt/configuration/).
 
-## Boundary with jj-spice
+## Alternative to jj-spice or jj-stack
 
-[jj-spice](https://github.com/alejoborbo/jj-spice) integrates with jj at a lower level using jj's Rust library and owns stack manipulation. blackbelt is deliberately bring-your-own-workflow: it leaves rebase, split, squash, arrange, submit, and merge operations to `jj` and `gh`. Its focus is reviewer-facing diagrams, diagnostics, and PR-aware navigation.
+[jj-spice](https://github.com/alejoborbo/jj-spice) integrates with jj at a lower level using jj's Rust library and owns stack manipulation. blackbelt is deliberately bring-your-own-workflow: it leaves rebase, split, squash, arrange, submit, and merge operations to `jj` and GitHub operations. Its focus is reviewer-facing diagrams, diagnostics, and PR-aware navigation.
 
 ## Development
 
@@ -71,3 +71,11 @@ go test ./...
 go vet ./...
 go build -o ~/.local/bin/bb ./cmd/bb
 ```
+
+We're still in early stage alpha of the development, breaking changes may occur.
+
+## Contribute
+
+Contributions are welcome:
+ - Use conventional commit.
+ - If you use LLM-assisted coding, please read your own PRs. The PR owner should be able to justify choices made in the PR.
