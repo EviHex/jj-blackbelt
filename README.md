@@ -1,75 +1,91 @@
 # blackbelt
 
-`blackbelt` keeps a stacked pull-request story legible on GitHub for people using [Jujutsu](https://github.com/jj-vcs/jj).
+`bb` makes stacked pull requests built with [Jujutsu](https://github.com/jj-vcs/jj) obvious on GitHub. It is a lightweight companion to a bring-your-own jj + `gh` workflow: blackbelt visualizes, validates, and navigates the stack without replacing jj's commit graph operations.
 
-It discovers the tracked bookmarks connected to your current jj stack, resolves their GitHub pull requests, and creates or updates the same navigation comment on every PR. The comment is a compact, clickable graph with PR state, up to three commit subjects, merged ancestors, and base-branch warnings.
+## Commands
+
+```text
+bb doctor
+bb stack (s) log [--all] [--json] [--revisions REVSET]
+bb stack (s) draw (diagram, d)
+bb stack (s) order [--fix] [--all] [--json]
+bb stack (s) up [n] [--dry-run] [--json]
+bb stack (s) down [n] [--dry-run] [--json]
+bb stack (s) top [--dry-run] [--json]
+bb stack (s) bottom [--dry-run] [--json]
+bb stack (s) goto <PR-number|bookmark> [--dry-run] [--json]
+bb util alias [--dry-run]
+```
+
+`bb stack` defaults to `bb stack log`. The default command is configurable.
+
+### Stack discovery
+
+The default log finds the unique tracked PR/bookmark child below trunk on the ancestry path to `@`, then includes its entire descendant tree. This includes parallel branches of the same stack without absorbing unrelated stacks that also branch directly from trunk. Local-only bookmarks remain intentionally invisible.
+
+`--all` includes all tracked, unmerged PR stacks. `--revisions` uses a jj revset to choose seeds before expanding their connected PR trees.
+
+### Draw
+
+`bb stack draw` creates or updates the marked stack-navigation comment on every PR. Comments contain clickable PR links, statuses, commit summaries, base warnings, merged history, and a per-PR current marker. Updates are idempotent.
+
+### Order
+
+`bb stack order` checks each open PR's GitHub base against its nearest unmerged jj parent. It is read-only and exits unsuccessfully when mismatches exist. `--fix` retargets only those incorrect PRs.
+
+### Navigation
+
+Navigation moves between PR bookmark nodes rather than individual jj commits. This matters when one PR contains multiple commits. `up` prompts at a tree split; non-interactive use reports the choices and suggests `goto`. All navigation commands support `--dry-run`.
+
+## Configuration
+
+See [CONFIGURATION.md](CONFIGURATION.md). blackbelt loads user configuration followed by repository-local `.jj/blackbelt.toml`; command-line flags take precedence.
+
+## jj integration
+
+Install the user-level alias:
 
 ```console
-$ jj blackbelt --dry-run
-PR stack — 3 PRs
-
-○  #103  Add the API                                      🔵 Reviewed  👈
-│   • feat: add the API
-│
-◆  #102  Introduce the model                              🟣 Merged
-│   • feat: introduce the model
-│
-◆  prod
+bb util alias
+jj stack log
+jj stack draw
 ```
 
-## What it does
+The alias delegates `jj stack ...` to `bb stack ...`.
 
-- Finds the connected tree of tracked `origin` bookmarks around `@`; local-only bookmarks stay invisible.
-- Handles both linear stacks and branching trees.
-- Creates or updates one marked stack comment per PR; reruns are idempotent.
-- Preserves merged PRs from encoded comment history, even after their bookmarks no longer exist.
-- Shows draft, open, reviewed, merged, and closed state; merged PRs use an immutable `◆` node.
-- Validates each open PR's GitHub base against its nearest unmerged jj parent and reports mismatches.
-- Uses GitHub's comparison commits, rather than assuming one jj commit per bookmark.
-- Provides a colored, OSC-8-link terminal preview with `--dry-run`.
+## Completion
 
-## What it is not
+Cobra generates completion for Bash, Zsh, Fish, and PowerShell:
 
-blackbelt is deliberately lightweight. It does not create, rebase, submit, or merge pull requests; jj and `gh` remain your workflow tools. It also does not implement a replacement jj engine or a new stacking model.
+```console
+bb completion bash
+bb completion zsh
+bb completion fish
+bb completion powershell
+```
 
-[jj-spice](https://github.com/alejoborbo/jj-spice) operates at a lower level, using jj's Rust library to provide first-class stack manipulation. blackbelt instead brings its own minimal discovery layer to an existing jj + GitHub workflow and makes the resulting stack obvious to reviewers on GitHub.
+Because `jj stack` is an external jj alias, jj cannot discover bb's nested command model by itself. Bash, Zsh, and Fish can source a small bridge after loading both normal completion scripts:
 
-## Requirements
+```console
+bb completion jj bash
+bb completion jj zsh
+bb completion jj fish
+```
+
+PowerShell completion works for direct `bb` usage. A safe composable bridge for an existing native `jj` completer is not currently installed.
+
+## Boundary with jj-spice
+
+[jj-spice](https://github.com/alejoborbo/jj-spice) integrates with jj at a lower level using jj's Rust library and owns stack manipulation. blackbelt intentionally leaves rebase, split, squash, arrange, submit, and merge operations to jj and `gh`. Its focus is reviewer-facing diagrams, diagnostics, and PR-aware navigation.
+
+## Requirements and development
 
 - Go 1.24+
-- [`jj`](https://github.com/jj-vcs/jj)
-- [`gh`](https://cli.github.com/) authenticated for the target repository
-
-## Run
-
-During development:
-
-```bash
-go run ./cmd/blackbelt --dry-run
-go run ./cmd/blackbelt
-```
-
-Build a personal binary:
-
-```bash
-go build -o ~/.local/bin/blackbelt ./cmd/blackbelt
-```
-
-Then wire it into jj:
-
-```toml
-[aliases]
-blackbelt = ["util", "exec", "--", "blackbelt"]
-bb = ["blackbelt"]
-```
-
-`jj blackbelt` updates comments; `jj blackbelt --dry-run` prints one clickable terminal diagram without changing GitHub.
-
-## Development
+- jj 0.40+
+- Authenticated GitHub CLI (`gh auth login`)
 
 ```bash
 go test ./...
 go vet ./...
+go build -o ~/.local/bin/bb ./cmd/bb
 ```
-
-The git-ignored `FUTURE.md` is intentionally a local product backlog, not a promise or an implementation plan.

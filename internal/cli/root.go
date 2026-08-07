@@ -32,6 +32,7 @@ func newRootCommand(value config.Config) *cobra.Command {
 		},
 	}
 	command.AddCommand(newStackCommand(value), newDoctorCommand(), newUtilCommand())
+	addCompletionCommands(command)
 	return command
 }
 

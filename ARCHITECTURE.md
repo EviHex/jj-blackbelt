@@ -19,6 +19,8 @@ flowchart LR
 
 - `cmd/blackbelt`: process entry point and exit behavior.
 - `internal/cli`: Cobra root command and future subcommand registration.
+- `internal/config`: layered TOML configuration.
+- `internal/doctor`, `internal/jjalias`, and `internal/completion`: preflight and shell/jj integration boundaries.
 - `internal/blackbelt` is divided by responsibility:
   - `app.go` orchestrates one invocation.
   - `model.go`, `topology.go`, and `graph.go` own the stack model and traversal.
