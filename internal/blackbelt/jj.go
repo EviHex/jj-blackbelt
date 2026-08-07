@@ -40,7 +40,7 @@ func bookmarks(ctx context.Context, r runner, rev string) ([]Bookmark, error) {
 	return result, nil
 }
 func union(ids []string) string { sort.Strings(ids); return "(" + strings.Join(ids, " | ") + ")" }
-func connected(ctx context.Context, r runner, trunk string) ([]Bookmark, error) {
+func connected(ctx context.Context, r runner, trunk, revset string, all bool) ([]Bookmark, error) {
 	ts, e := ids(ctx, r, `bookmarks(exact:"`+trunk+`")`)
 	if e != nil || len(ts) != 1 {
 		return nil, fmt.Errorf("GitHub default branch bookmark %q must resolve to one commit", trunk)
@@ -49,7 +49,14 @@ func connected(ctx context.Context, r runner, trunk string) ([]Bookmark, error) 
 	if e != nil {
 		return nil, e
 	}
-	seeds, e := bookmarks(ctx, r, fmt.Sprintf("%s..@ | @::", ts[0]))
+	if all {
+		return candidates, nil
+	}
+	seedRevset := fmt.Sprintf("%s..@ | @::", ts[0])
+	if revset != "" {
+		seedRevset = revset
+	}
+	seeds, e := bookmarks(ctx, r, seedRevset)
 	if e != nil {
 		return nil, e
 	}

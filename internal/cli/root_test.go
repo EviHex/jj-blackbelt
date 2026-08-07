@@ -31,3 +31,15 @@ func TestRootCommandRejectsArguments(t *testing.T) {
 		t.Fatal("Execute() unexpectedly succeeded")
 	}
 }
+
+func TestStackCommandAliases(t *testing.T) {
+	root := newRootCommand(config.Defaults())
+	stack, _, err := root.Find([]string{"s"})
+	if err != nil || stack.Name() != "stack" {
+		t.Fatalf("find s = %v, %v", stack, err)
+	}
+	draw, _, err := root.Find([]string{"s", "d"})
+	if err != nil || draw.Name() != "draw" {
+		t.Fatalf("find s d = %v, %v", draw, err)
+	}
+}

@@ -2,6 +2,7 @@ package blackbelt
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -12,7 +13,7 @@ func Run(ctx context.Context, options Options) error {
 	return run(ctx, shell{}, options, os.Stdout, os.Stderr)
 }
 func run(ctx context.Context, r runner, options Options, out, errOut *os.File) error {
-	root, repo, trunk, local, comments, historical, err := loadStack(ctx, r)
+	root, repo, trunk, local, comments, historical, err := loadStack(ctx, r, options)
 	if err != nil {
 		return err
 	}
@@ -32,6 +33,9 @@ func run(ctx context.Context, r runner, options Options, out, errOut *os.File) e
 	mergeParents(local, history)
 	if options.DryRun {
 		current := currentNumber(ctx, r, local)
+		if options.JSON {
+			return writeStackJSON(out, repo, trunk, current, local)
+		}
 		interactive := terminal(out)
 		_, e := fmt.Fprint(out, renderTerminal(local, trunk, current, interactive))
 		return e
@@ -58,7 +62,7 @@ func run(ctx context.Context, r runner, options Options, out, errOut *os.File) e
 	return nil
 }
 
-func loadStack(ctx context.Context, r runner) (string, string, string, []PullRequest, map[int][]map[string]any, map[int]PullRequest, error) {
+func loadStack(ctx context.Context, r runner, options Options) (string, string, string, []PullRequest, map[int][]map[string]any, map[int]PullRequest, error) {
 	root := strings.TrimSpace(runCmd(ctx, r, "jj", "--ignore-working-copy", "root"))
 	if root == "" {
 		return "", "", "", nil, nil, nil, errors.New("run this command inside a jj repository")
@@ -67,7 +71,7 @@ func loadStack(ctx context.Context, r runner) (string, string, string, []PullReq
 	if err != nil {
 		return "", "", "", nil, nil, nil, err
 	}
-	bookmarks, err := connected(ctx, r, trunk)
+	bookmarks, err := connected(ctx, r, trunk, options.Revset, options.All)
 	if err != nil {
 		return "", "", "", nil, nil, nil, err
 	}
@@ -84,4 +88,17 @@ func loadStack(ctx context.Context, r runner) (string, string, string, []PullReq
 	}
 	validate(prs, trunk)
 	return root, repo, trunk, prs, comments, historical, nil
+}
+
+type jsonStack struct {
+	Repository string        `json:"repository"`
+	Trunk      string        `json:"trunk"`
+	Current    int           `json:"current,omitempty"`
+	PRs        []PullRequest `json:"prs"`
+}
+
+func writeStackJSON(out *os.File, repo, trunk string, current int, prs []PullRequest) error {
+	encoder := json.NewEncoder(out)
+	encoder.SetIndent("", "  ")
+	return encoder.Encode(jsonStack{Repository: repo, Trunk: trunk, Current: current, PRs: prs})
 }
