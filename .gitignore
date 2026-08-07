@@ -4,3 +4,20 @@ FUTURE.md
 # Build outputs
 bin/
 coverage.out
+
+# Editor
+.idea/
+.vscode
+.cursor
+*.swp
+*.swo
+
+# Env vars
+.env
+.env.*
+
+# File System
+.DS_Store
+.LSOverride
+Thumbs.db
+ehthumbs.db
