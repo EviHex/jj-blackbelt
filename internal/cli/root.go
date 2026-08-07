@@ -4,33 +4,30 @@ package cli
 import (
 	"context"
 
-	"github.com/pinglei-he/blackbelt/internal/blackbelt"
+	"github.com/pinglei-he/blackbelt/internal/config"
 	"github.com/spf13/cobra"
 )
 
 // Execute runs blackbelt's root command.
 func Execute(ctx context.Context) error {
-	return newRootCommand().ExecuteContext(ctx)
+	value, err := config.Load(ctx)
+	if err != nil {
+		return err
+	}
+	return newRootCommand(value).ExecuteContext(ctx)
 }
 
-func newRootCommand() *cobra.Command {
-	var dryRun bool
-
+func newRootCommand(value config.Config) *cobra.Command {
 	command := &cobra.Command{
-		Use:           "blackbelt",
+		Use:           "bb",
 		Short:         "Make jj PR stacks obvious on GitHub",
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		Args:          cobra.NoArgs,
 		RunE: func(command *cobra.Command, _ []string) error {
-			return blackbelt.Run(command.Context(), blackbelt.Options{DryRun: dryRun})
+			return command.Help()
 		},
 	}
-	command.Flags().BoolVar(
-		&dryRun,
-		"dry-run",
-		false,
-		"print one terminal diagram without changing GitHub comments",
-	)
+	command.AddCommand(newStackCommand(value))
 	return command
 }

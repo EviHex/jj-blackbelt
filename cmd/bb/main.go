@@ -10,7 +10,7 @@ import (
 
 func main() {
 	if err := cli.Execute(context.Background()); err != nil {
-		fmt.Fprintf(os.Stderr, "blackbelt: %v\n", err)
+		fmt.Fprintf(os.Stderr, "bb: %v\n", err)
 		os.Exit(1)
 	}
 }
