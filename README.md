@@ -1,6 +1,45 @@
+<div align="center">
+  <img src="docs/assets/blackbelt.png" alt="blackbelt mascot: a blue jay wearing a black belt" width="520">
+
 # blackbelt
 
-`bb` makes stacked pull requests built with [Jujutsu](https://github.com/jj-vcs/jj) obvious on GitHub. It is a lightweight companion to a bring-your-own jj + `gh` workflow: blackbelt visualizes, validates, and navigates the stack without replacing jj's commit graph operations.
+**Make your jj PR stack obvious to everyone else.**
+
+[Documentation](https://evihex.github.io/jj-blackbelt/) · [Quickstart](https://evihex.github.io/jj-blackbelt/quickstart/) · [Command reference](https://evihex.github.io/jj-blackbelt/commands/)
+</div>
+
+`bb` is a lightweight companion to [Jujutsu](https://github.com/jj-vcs/jj) and the GitHub CLI. Keep creating, editing, and rebasing changes with `jj`; blackbelt discovers the PR tree you already made, helps you navigate it, checks its GitHub bases, and gives reviewers a clickable stack diagram.
+
+## Quickstart
+
+If you already use `jj` and `gh`, this is the whole setup:
+
+```console
+go install github.com/pinglei-he/blackbelt/cmd/bb@latest
+bb doctor
+bb util alias
+```
+
+Now blackbelt feels like part of jj:
+
+```console
+jj stack          # see the PR tree around your current change
+jj stack up       # move to the child PR
+jj stack order    # diagnose incorrect GitHub bases
+jj stack draw     # add or refresh the diagram on every PR
+```
+
+There is no repository initialization, stack metadata, parallel branch model, or replacement workflow. One bookmark per PR is enough; your jj graph remains the source of truth.
+
+## What it does
+
+- Discovers linear and tree-shaped PR stacks from jj bookmarks and GitHub PRs.
+- Renders the stack in your terminal or as a reviewer-friendly GitHub comment.
+- Preserves merged PRs in diagrams even after their bookmarks are forgotten.
+- Navigates by PR rather than by commit, including PRs containing multiple jj commits.
+- Diagnoses incorrect PR bases and can repair them explicitly with `--fix`.
+- Produces JSON for automation and completion for Bash, Zsh, Fish, and PowerShell.
+- Works as either `bb stack ...` / `bb s ...` or the installed `jj stack ...` alias.
 
 ## Commands
 
@@ -17,72 +56,15 @@ bb stack (s) goto <PR-number|bookmark> [--dry-run] [--json]
 bb util alias [--dry-run]
 ```
 
-`bb stack` defaults to `bb stack log`. The default command is configurable.
-
-### Stack discovery
-
-The default log finds the unique tracked PR/bookmark child below trunk on the ancestry path to `@`, then includes its entire descendant tree. This includes parallel branches of the same stack without absorbing unrelated stacks that also branch directly from trunk. Local-only bookmarks remain intentionally invisible.
-
-`--all` includes all tracked, unmerged PR stacks. `--revisions` uses a jj revset to choose seeds before expanding their connected PR trees.
-
-### Draw
-
-`bb stack draw` creates or updates the marked stack-navigation comment on every PR. Comments contain clickable PR links, statuses, commit summaries, base warnings, merged history, and a per-PR current marker. Updates are idempotent.
-
-### Order
-
-`bb stack order` checks each open PR's GitHub base against its nearest unmerged jj parent. It is read-only and exits unsuccessfully when mismatches exist. `--fix` retargets only those incorrect PRs.
-
-### Navigation
-
-Navigation moves between PR bookmark nodes rather than individual jj commits. This matters when one PR contains multiple commits. `up` prompts at a tree split; non-interactive use reports the choices and suggests `goto`. All navigation commands support `--dry-run`.
-
-## Configuration
-
-See [CONFIGURATION.md](CONFIGURATION.md). blackbelt loads user configuration followed by repository-local `.jj/blackbelt.toml`; command-line flags take precedence.
-
-## jj integration
-
-Install the user-level alias:
-
-```console
-bb util alias
-jj stack log
-jj stack draw
-```
-
-The alias delegates `jj stack ...` to `bb stack ...`.
-
-## Completion
-
-Cobra generates completion for Bash, Zsh, Fish, and PowerShell:
-
-```console
-bb completion bash
-bb completion zsh
-bb completion fish
-bb completion powershell
-```
-
-Because `jj stack` is an external jj alias, jj cannot discover bb's nested command model by itself. Bash, Zsh, and Fish can source a small bridge after loading both normal completion scripts:
-
-```console
-bb completion jj bash
-bb completion jj zsh
-bb completion jj fish
-```
-
-PowerShell completion works for direct `bb` usage. A safe composable bridge for an existing native `jj` completer is not currently installed.
+`bb stack` defaults to `bb stack log`; that default and stack selection are configurable in TOML. See the [configuration guide](https://evihex.github.io/jj-blackbelt/configuration/).
 
 ## Boundary with jj-spice
 
-[jj-spice](https://github.com/alejoborbo/jj-spice) integrates with jj at a lower level using jj's Rust library and owns stack manipulation. blackbelt intentionally leaves rebase, split, squash, arrange, submit, and merge operations to jj and `gh`. Its focus is reviewer-facing diagrams, diagnostics, and PR-aware navigation.
+[jj-spice](https://github.com/alejoborbo/jj-spice) integrates with jj at a lower level using jj's Rust library and owns stack manipulation. blackbelt is deliberately bring-your-own-workflow: it leaves rebase, split, squash, arrange, submit, and merge operations to `jj` and `gh`. Its focus is reviewer-facing diagrams, diagnostics, and PR-aware navigation.
 
-## Requirements and development
+## Development
 
-- Go 1.24+
-- jj 0.40+
-- Authenticated GitHub CLI (`gh auth login`)
+Requirements: Go 1.24+, jj 0.40+, and an authenticated GitHub CLI.
 
 ```bash
 go test ./...
