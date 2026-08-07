@@ -37,7 +37,7 @@ func pullRequests(ctx context.Context, r runner, repo string, bs []Bookmark, his
 	for i, n := range ns {
 		v := fmt.Sprintf("number%d", i)
 		vars = append(vars, "$"+v+":Int!")
-		fields = append(fields, fmt.Sprintf(`historical%d:pullRequest(number:$%s){number title state headRefName baseRefName url isDraft reviewDecision commits(first:100){totalCount nodes{commit{messageHeadline messageBody}}}}`, i, v))
+		fields = append(fields, fmt.Sprintf(`historical%d:pullRequest(number:$%s){number title state headRefName baseRefName url isDraft reviewDecision commits(first:100){totalCount nodes{commit{messageHeadline messageBody}}} comments(last:100){totalCount nodes{databaseId body}}}`, i, v))
 		args = append(args, "-F", fmt.Sprintf("%s=%d", v, n))
 	}
 	query := fmt.Sprintf("query(%s){repository(owner:$owner,name:$name){%s}}", strings.Join(vars, ","), strings.Join(fields, ""))
@@ -73,6 +73,7 @@ func pullRequests(ctx context.Context, r runner, repo string, bs []Bookmark, his
 	for i, n := range ns {
 		if p := object(repoValue[fmt.Sprintf("historical%d", i)]); p != nil {
 			historical[n] = fromGH(p, "")
+			comments[n] = objects(array(object(p["comments"])["nodes"]))
 		}
 	}
 	return values, comments, historical, nil
