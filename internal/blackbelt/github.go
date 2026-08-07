@@ -42,17 +42,17 @@ func pullRequests(ctx context.Context, r runner, repo string, bs []Bookmark, his
 	}
 	query := fmt.Sprintf("query(%s){repository(owner:$owner,name:$name){%s}}", strings.Join(vars, ","), strings.Join(fields, ""))
 	args = append(args, "-f", "query="+query, "-F", "owner="+owner, "-F", "name="+name)
-	out, e := must(ctx, r, "gh", args...)
+	out, e := mustWithActivity(ctx, r, "Fetching PR details from GitHub", "gh", args...)
 	if e != nil {
-		return nil, nil, nil, e
+		return nil, nil, nil, fmt.Errorf("fetch PR details from %s: %w", repo, e)
 	}
 	var payload map[string]any
 	if e = json.Unmarshal([]byte(out), &payload); e != nil {
-		return nil, nil, nil, e
+		return nil, nil, nil, fmt.Errorf("parse PR details from %s: %w", repo, e)
 	}
 	repoValue := object(object(payload["data"])["repository"])
 	if repoValue == nil {
-		return nil, nil, nil, errors.New("GitHub repository was not found")
+		return nil, nil, nil, fmt.Errorf("fetch PR details from %s: GitHub repository was not found", repo)
 	}
 	values := []map[string]any{}
 	comments := map[int][]map[string]any{}

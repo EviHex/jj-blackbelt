@@ -16,7 +16,7 @@ func assignParents(ctx context.Context, r runner, prs []PullRequest) error {
 	for i := range prs {
 		parents, e := idsFor(ctx, r, fmt.Sprintf("heads(((::%s) ~ %s) & %s)", prs[i].CommitID, prs[i].CommitID, union(ids)))
 		if e != nil {
-			return e
+			return fmt.Errorf("find parent of PR #%d: %w", prs[i].Number, e)
 		}
 		if len(parents) > 1 {
 			return fmt.Errorf("PR #%d has multiple PR ancestors; merge-shaped DAGs are not supported", prs[i].Number)

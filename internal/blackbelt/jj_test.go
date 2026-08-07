@@ -58,3 +58,11 @@ func TestConnectedAllReturnsEveryCandidate(t *testing.T) {
 		t.Fatalf("connected(all) = %#v, want all candidates", got)
 	}
 }
+
+func TestConnectedAddsStackDiscoveryContext(t *testing.T) {
+	cause := fmt.Errorf("jj: bookmark not found")
+	_, err := connected(context.Background(), failingRunner{err: cause}, "prod", "", false)
+	if want := `resolve default branch bookmark "prod": resolve revisions: ` + cause.Error(); err == nil || err.Error() != want {
+		t.Fatalf("connected() error = %v, want %q", err, want)
+	}
+}

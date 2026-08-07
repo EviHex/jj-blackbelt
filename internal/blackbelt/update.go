@@ -19,11 +19,17 @@ func update(ctx context.Context, r runner, repo string, number int, comment map[
 		return e
 	}
 	if comment == nil {
-		_, e = must(ctx, r, "gh", "pr", "comment", fmt.Sprint(number), "--repo", repo, "--body-file", p.Name())
+		_, e = mustWithActivity(ctx, r, fmt.Sprintf("Creating stack note on PR #%d", number), "gh", "pr", "comment", fmt.Sprint(number), "--repo", repo, "--body-file", p.Name())
+		if e != nil {
+			return fmt.Errorf("create stack note on PR #%d: %w", number, e)
+		}
 	} else {
-		_, e = must(ctx, r, "gh", "api", "-X", "PATCH", fmt.Sprintf("repos/%s/issues/comments/%d", repo, int64Value(comment["databaseId"])), "-F", "body=@"+p.Name())
+		_, e = mustWithActivity(ctx, r, fmt.Sprintf("Updating stack note on PR #%d", number), "gh", "api", "-X", "PATCH", fmt.Sprintf("repos/%s/issues/comments/%d", repo, int64Value(comment["databaseId"])), "-F", "body=@"+p.Name())
+		if e != nil {
+			return fmt.Errorf("update stack note on PR #%d: %w", number, e)
+		}
 	}
-	return e
+	return nil
 }
 func currentNumber(ctx context.Context, r runner, prs []PullRequest) int {
 	by := map[string]int{}

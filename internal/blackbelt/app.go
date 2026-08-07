@@ -121,8 +121,9 @@ func order(ctx context.Context, r runner, options OrderOptions, out *os.File) er
 		return fmt.Errorf("%d PR base mismatch%s; rerun with --fix to repair", len(issues), plural(len(issues)))
 	}
 	for _, issue := range issues {
-		if _, err := must(ctx, r, "gh", "pr", "edit", fmt.Sprint(issue.Number), "--repo", repo, "--base", issue.Expected); err != nil {
-			return fmt.Errorf("repair PR #%d: %w", issue.Number, err)
+		label := fmt.Sprintf("Retargeting PR #%d to %s", issue.Number, issue.Expected)
+		if _, err := mustWithActivity(ctx, r, label, "gh", "pr", "edit", fmt.Sprint(issue.Number), "--repo", repo, "--base", issue.Expected); err != nil {
+			return fmt.Errorf("repair base on PR #%d: %w", issue.Number, err)
 		}
 		if !options.JSON {
 			fmt.Fprintf(out, "✓ PR #%d now targets %s\n", issue.Number, issue.Expected)
@@ -132,7 +133,11 @@ func order(ctx context.Context, r runner, options OrderOptions, out *os.File) er
 }
 
 func loadStack(ctx context.Context, r runner, options Options) (string, string, string, []PullRequest, map[int][]map[string]any, map[int]PullRequest, error) {
-	root := strings.TrimSpace(runCmd(ctx, r, "jj", "--ignore-working-copy", "root"))
+	rootOutput, err := must(ctx, r, "jj", "--ignore-working-copy", "root")
+	if err != nil {
+		return "", "", "", nil, nil, nil, fmt.Errorf("find jj repository root: %w", err)
+	}
+	root := strings.TrimSpace(rootOutput)
 	if root == "" {
 		return "", "", "", nil, nil, nil, errors.New("run this command inside a jj repository")
 	}
@@ -153,7 +158,7 @@ func loadStack(ctx context.Context, r runner, options Options) (string, string, 
 		return "", "", "", nil, nil, nil, err
 	}
 	if err = assignParents(ctx, r, prs); err != nil {
-		return "", "", "", nil, nil, nil, err
+		return "", "", "", nil, nil, nil, fmt.Errorf("discover stack parentage: %w", err)
 	}
 	validate(prs, trunk)
 	return root, repo, trunk, prs, comments, historical, nil

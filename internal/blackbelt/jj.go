@@ -9,25 +9,21 @@ import (
 	"strings"
 )
 
-func runCmd(ctx context.Context, r runner, name string, args ...string) string {
-	v := r.run(ctx, name, args...)
-	if v.err != nil {
-		return ""
-	}
-	return v.output
-}
 func must(ctx context.Context, r runner, name string, args ...string) (string, error) {
 	v := r.run(ctx, name, args...)
 	return v.output, v.err
 }
 func ids(ctx context.Context, r runner, rev string) ([]string, error) {
 	s, e := must(ctx, r, "jj", "--ignore-working-copy", "log", "--no-graph", "-r", rev, "-T", `commit_id ++ "\n"`)
-	return nonempty(s), e
+	if e != nil {
+		return nil, fmt.Errorf("resolve revisions: %w", e)
+	}
+	return nonempty(s), nil
 }
 func bookmarks(ctx context.Context, r runner, rev string) ([]Bookmark, error) {
 	s, e := must(ctx, r, "jj", "--ignore-working-copy", "bookmark", "list", "--tracked", "--remote", "origin", "--revision", rev, "--template", `if(remote, "R\t" ++ name ++ "\t" ++ if(self.normal_target(), self.normal_target().commit_id()) ++ "\n", "L\t" ++ name ++ "\t" ++ if(self.normal_target(), self.normal_target().commit_id()) ++ "\n")`)
 	if e != nil {
-		return nil, e
+		return nil, fmt.Errorf("list tracked origin bookmarks: %w", e)
 	}
 	var result []Bookmark
 	for _, line := range nonempty(s) {
@@ -42,12 +38,15 @@ func bookmarks(ctx context.Context, r runner, rev string) ([]Bookmark, error) {
 func union(ids []string) string { sort.Strings(ids); return "(" + strings.Join(ids, " | ") + ")" }
 func connected(ctx context.Context, r runner, trunk, revset string, all bool) ([]Bookmark, error) {
 	ts, e := ids(ctx, r, `bookmarks(exact:"`+trunk+`")`)
-	if e != nil || len(ts) != 1 {
+	if e != nil {
+		return nil, fmt.Errorf("resolve default branch bookmark %q: %w", trunk, e)
+	}
+	if len(ts) != 1 {
 		return nil, fmt.Errorf("GitHub default branch bookmark %q must resolve to one commit", trunk)
 	}
 	candidates, e := bookmarks(ctx, r, fmt.Sprintf("bookmarks() ~ ::%s", ts[0]))
 	if e != nil {
-		return nil, e
+		return nil, fmt.Errorf("discover stack bookmarks: %w", e)
 	}
 	if all {
 		return candidates, nil
@@ -58,7 +57,7 @@ func connected(ctx context.Context, r runner, trunk, revset string, all bool) ([
 	}
 	seeds, e := bookmarks(ctx, r, seedRevset)
 	if e != nil {
-		return nil, e
+		return nil, fmt.Errorf("discover stack bookmarks: %w", e)
 	}
 	if len(seeds) == 0 {
 		return nil, errors.New("no tracked origin bookmarks found around @")
@@ -80,7 +79,7 @@ func connected(ctx context.Context, r runner, trunk, revset string, all bool) ([
 		chosen := keys(selected)
 		comparable, e := ids(ctx, r, fmt.Sprintf("%s & ((::%s) | (%s::))", union(keys(byID)), union(chosen), union(chosen)))
 		if e != nil {
-			return nil, e
+			return nil, fmt.Errorf("discover stack bookmarks: %w", e)
 		}
 		changed := false
 		for _, id := range comparable {
@@ -116,9 +115,9 @@ func metadata(ctx context.Context, r runner) (string, string, error) {
 			}
 		}
 	}
-	out, e := must(ctx, r, "gh", "repo", "view", "--json", "nameWithOwner,defaultBranchRef")
+	out, e := mustWithActivity(ctx, r, "Resolving repository metadata from GitHub", "gh", "repo", "view", "--json", "nameWithOwner,defaultBranchRef")
 	if e != nil {
-		return "", "", e
+		return "", "", fmt.Errorf("fetch GitHub repository metadata: %w", e)
 	}
 	var v struct {
 		Name    string `json:"nameWithOwner"`

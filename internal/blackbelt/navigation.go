@@ -77,7 +77,7 @@ func navigate(ctx context.Context, r runner, options NavigateOptions, in, out *o
 		return fmt.Errorf("PR #%d no longer has a local bookmark commit", target.Number)
 	}
 	if _, err := must(ctx, r, "jj", "edit", target.CommitID); err != nil {
-		return err
+		return fmt.Errorf("navigate to PR #%d: %w", target.Number, err)
 	}
 	fmt.Fprintf(out, "Now at #%d  %s (%s)\n", target.Number, target.Title, target.Head)
 	return nil
