@@ -1,0 +1,70 @@
+:root {
+  --bb-blue: #3b9cff;
+  --bb-blue-deep: #1769aa;
+  --bb-ink: #111820;
+}
+
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #18222d;
+  --md-accent-fg-color: var(--bb-blue-deep);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0b1016;
+  --md-accent-fg-color: #62b4ff;
+}
+
+.hero {
+  align-items: center;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  margin: 0 0 2.5rem;
+  min-height: 28rem;
+}
+
+.hero h1 {
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  margin-bottom: 1.2rem;
+}
+
+.hero-copy > p:not(:last-child) {
+  font-size: 1.05rem;
+  max-width: 38rem;
+}
+
+.hero-art img {
+  filter: drop-shadow(0 1.4rem 2.1rem rgb(0 0 0 / 28%));
+  transform: scale(1.12);
+  width: 100%;
+}
+
+.md-button {
+  border-radius: 999px !important;
+}
+
+.md-button--primary {
+  background: linear-gradient(135deg, var(--bb-blue-deep), var(--bb-blue)) !important;
+  border-color: transparent !important;
+}
+
+.md-typeset .grid.cards > ul > li {
+  border-radius: 0.75rem;
+}
+
+@media screen and (max-width: 700px) {
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    text-align: center;
+  }
+
+  .hero-art {
+    margin: auto;
+    max-width: 28rem;
+    order: -1;
+  }
+}

@@ -4,6 +4,7 @@ FUTURE.md
 # Build outputs
 bin/
 coverage.out
+site/
 
 # Editor
 .idea/
