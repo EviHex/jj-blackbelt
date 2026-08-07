@@ -3,6 +3,7 @@ package blackbelt
 import (
 	"context"
 	"fmt"
+	"sort"
 )
 
 func assignParents(ctx context.Context, r runner, prs []PullRequest) error {
@@ -26,6 +27,35 @@ func assignParents(ctx context.Context, r runner, prs []PullRequest) error {
 		}
 	}
 	return nil
+}
+
+func stackComponents(prs []PullRequest) [][]PullRequest {
+	byNumber := make(map[int]PullRequest, len(prs))
+	for _, pr := range prs {
+		byNumber[pr.Number] = pr
+	}
+	groups := map[int][]PullRequest{}
+	for _, pr := range prs {
+		root := pr.Number
+		seen := map[int]bool{}
+		position := pr
+		for position.Parent != nil && byNumber[*position.Parent].Number != 0 && !seen[*position.Parent] {
+			seen[*position.Parent] = true
+			position = byNumber[*position.Parent]
+			root = position.Number
+		}
+		groups[root] = append(groups[root], pr)
+	}
+	roots := make([]int, 0, len(groups))
+	for root := range groups {
+		roots = append(roots, root)
+	}
+	sort.Ints(roots)
+	result := make([][]PullRequest, 0, len(roots))
+	for _, root := range roots {
+		result = append(result, groups[root])
+	}
+	return result
 }
 func idsFor(ctx context.Context, r runner, s string) ([]string, error) { return ids(ctx, r, s) }
 func validate(prs []PullRequest, trunk string) {

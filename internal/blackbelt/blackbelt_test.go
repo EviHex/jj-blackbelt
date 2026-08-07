@@ -54,3 +54,12 @@ func TestValidateBasesReportsLiveParentMismatch(t *testing.T) {
 		t.Fatalf("live parent validation = %#v", prs[1])
 	}
 }
+
+func TestStackComponentsSeparatesTrunkChildren(t *testing.T) {
+	root := 1
+	prs := []PullRequest{{Number: 1}, {Number: 2, Parent: &root}, {Number: 9}}
+	components := stackComponents(prs)
+	if len(components) != 2 || len(components[0]) != 2 || len(components[1]) != 1 {
+		t.Fatalf("stackComponents() = %#v", components)
+	}
+}

@@ -37,6 +37,10 @@ func run(ctx context.Context, r runner, options Options, out, errOut *os.File) e
 			return writeStackJSON(out, repo, trunk, current, local)
 		}
 		interactive := terminal(out)
+		if options.All {
+			_, e := fmt.Fprint(out, renderTerminalForest(local, trunk, current, interactive))
+			return e
+		}
 		_, e := fmt.Fprint(out, renderTerminal(local, trunk, current, interactive))
 		return e
 	}

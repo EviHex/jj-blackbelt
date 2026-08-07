@@ -44,6 +44,16 @@ func renderTerminal(prs []PullRequest, trunk string, current int, links bool) st
 	}
 	return strings.Join(append(lines, ""), "\n")
 }
+
+func renderTerminalForest(prs []PullRequest, trunk string, current int, links bool) string {
+	components := stackComponents(prs)
+	parts := make([]string, 0, len(components)+1)
+	parts = append(parts, fmt.Sprintf("PR stacks — %d stacks, %d PRs\n", len(components), len(prs)))
+	for _, component := range components {
+		parts = append(parts, renderTerminal(component, trunk, current, links))
+	}
+	return strings.Join(parts, "\n")
+}
 func renderHTML(prs []PullRequest, trunk string, current int) string {
 	es := events(prs, trunk, current)
 	width := 0
