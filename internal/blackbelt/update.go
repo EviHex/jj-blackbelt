@@ -36,6 +36,19 @@ func currentNumber(ctx context.Context, r runner, prs []PullRequest) int {
 	if len(at) > 0 && by[at[0]] != 0 {
 		return by[at[0]]
 	}
+	selected := make([]string, 0, len(by))
+	for commitID := range by {
+		selected = append(selected, commitID)
+	}
+	if len(selected) == 0 {
+		return 0
+	}
+	if descendants, err := ids(ctx, r, fmt.Sprintf("roots((@::) & %s)", union(selected))); err == nil && len(descendants) == 1 {
+		return by[descendants[0]]
+	}
+	if ancestors, err := ids(ctx, r, fmt.Sprintf("heads((::@) & %s)", union(selected))); err == nil && len(ancestors) == 1 {
+		return by[ancestors[0]]
+	}
 	return 0
 }
 func hasPR(prs []PullRequest, n int) bool {
