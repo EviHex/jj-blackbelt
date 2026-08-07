@@ -2,6 +2,7 @@ package blackbelt
 
 import (
 	"encoding/json"
+	"strconv"
 	"strings"
 )
 
@@ -26,6 +27,23 @@ func intValue(v any) int {
 	case json.Number:
 		n, _ := x.Int64()
 		return int(n)
+	}
+	return 0
+}
+func int64Value(v any) int64 {
+	switch x := v.(type) {
+	case float64:
+		return int64(x)
+	case int:
+		return int64(x)
+	case int64:
+		return x
+	case json.Number:
+		n, _ := x.Int64()
+		return n
+	case string:
+		n, _ := strconv.ParseInt(x, 10, 64)
+		return n
 	}
 	return 0
 }

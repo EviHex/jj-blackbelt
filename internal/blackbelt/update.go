@@ -21,7 +21,7 @@ func update(ctx context.Context, r runner, repo string, number int, comment map[
 	if comment == nil {
 		_, e = must(ctx, r, "gh", "pr", "comment", fmt.Sprint(number), "--repo", repo, "--body-file", p.Name())
 	} else {
-		_, e = must(ctx, r, "gh", "api", "-X", "PATCH", fmt.Sprintf("repos/%s/issues/comments/%v", repo, comment["databaseId"]), "-F", "body=@"+p.Name())
+		_, e = must(ctx, r, "gh", "api", "-X", "PATCH", fmt.Sprintf("repos/%s/issues/comments/%d", repo, int64Value(comment["databaseId"])), "-F", "body=@"+p.Name())
 	}
 	return e
 }
