@@ -33,6 +33,7 @@ func newRootCommand(value config.Config) *cobra.Command {
 	}
 	command.AddCommand(newStackCommand(value), newDoctorCommand(), newUtilCommand())
 	addCompletionCommands(command)
+	installRootHelp(command, value)
 	return command
 }
 
