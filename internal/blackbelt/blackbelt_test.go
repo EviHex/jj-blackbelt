@@ -12,7 +12,7 @@ func TestHTMLPreservesTheEstablishedCommentContract(t *testing.T) {
 		{Number: 7, Title: "parent", State: "MERGED", Head: "parent", URL: "https://example.test/pull/7", Commits: []string{"feat: parent"}, CommitCount: 1},
 	}
 	body := renderHTML(prs, "prod", 8)
-	for _, want := range []string{marker, "jj-stack-data:v1", `<a href="https://example.test/pull/8">#8</a>`, "🔵", "🟣", "◆  prod"} {
+	for _, want := range []string{marker, "jj-stack-data:v1", `<a href="https://example.test/pull/8">#8</a>`, `<a href="https://github.com/EviHex/jj-blackbelt">black belt</a>`, "🔵", "🟣", "◆  prod"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("comment missing %q:\n%s", want, body)
 		}

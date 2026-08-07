@@ -3,7 +3,7 @@ package blackbelt
 
 const marker = "<!-- jj-stack-note -->"
 const legacyMarker = "<sub>Stack maintained by agent.</sub>"
-const footer = `<small>⚡ This stack has a 🥋 black belt in <a href="https://github.com/jj-vcs/jj">Jujutsu (jj)</a></small>`
+const footer = `<small>⚡ This stack has a 🥋 <a href="https://github.com/EviHex/jj-blackbelt">black belt</a> in <a href="https://github.com/jj-vcs/jj">Jujutsu (jj)</a></small>`
 
 type Options struct {
 	DryRun bool
