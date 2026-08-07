@@ -37,11 +37,15 @@ func Defaults() Config {
 
 // Load overlays user and repository configuration on the built-in defaults.
 func Load(ctx context.Context) (Config, error) {
-	value := Defaults()
 	paths, err := Paths(ctx)
 	if err != nil {
 		return Config{}, err
 	}
+	return loadFiles(paths)
+}
+
+func loadFiles(paths []string) (Config, error) {
+	value := Defaults()
 	for _, path := range paths {
 		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 			continue

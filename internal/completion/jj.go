@@ -50,7 +50,7 @@ if (( $+functions[_jj] && $+functions[_bb] )); then
     if (( CURRENT >= 2 )) && [[ ${words[2]} == stack ]]; then
       local -a _bb_saved_words=("${words[@]}")
       local _bb_saved_current=$CURRENT
-      words=(bb stack "${words[@]:3}")
+      words=(bb stack "${_bb_saved_words[3,-1]}")
       CURRENT=$_bb_saved_current
       _bb
       words=("${_bb_saved_words[@]}")

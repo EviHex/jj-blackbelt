@@ -20,14 +20,14 @@ func newStackCommand(value config.Config) *cobra.Command {
 			case "log":
 				return blackbelt.Run(command.Context(), blackbelt.Options{DryRun: true, All: value.Stack.Log.All, Revset: value.Stack.Log.Revset})
 			case "draw":
-				return blackbelt.Run(command.Context(), blackbelt.Options{})
+				return blackbelt.Run(command.Context(), blackbelt.Options{Revset: value.Stack.Log.Revset})
 			default:
 				return fmt.Errorf("unknown stack.default-command %q", value.Stack.DefaultCommand)
 			}
 		},
 	}
 	command.AddCommand(
-		newStackLogCommand(value), newStackDrawCommand(), newStackOrderCommand(value),
+		newStackLogCommand(value), newStackDrawCommand(value), newStackOrderCommand(value),
 		newStackNavigationCommand(value, "up"), newStackNavigationCommand(value, "down"),
 		newStackNavigationCommand(value, "top"), newStackNavigationCommand(value, "bottom"),
 		newStackGotoCommand(value),
@@ -114,14 +114,14 @@ func newStackLogCommand(value config.Config) *cobra.Command {
 	return command
 }
 
-func newStackDrawCommand() *cobra.Command {
+func newStackDrawCommand(value config.Config) *cobra.Command {
 	return &cobra.Command{
 		Use:     "draw",
 		Aliases: []string{"diagram", "d"},
 		Short:   "Create or update the stack diagram on every PR",
 		Args:    cobra.NoArgs,
 		RunE: func(command *cobra.Command, _ []string) error {
-			return blackbelt.Run(command.Context(), blackbelt.Options{})
+			return blackbelt.Run(command.Context(), blackbelt.Options{Revset: value.Stack.Log.Revset})
 		},
 	}
 }
