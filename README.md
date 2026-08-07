@@ -58,9 +58,11 @@ bb util alias [--dry-run]
 
 `bb stack` defaults to `bb stack log`; that default and stack selection are configurable in TOML. See the [configuration guide](https://evihex.github.io/jj-blackbelt/configuration/).
 
-## Alternative to jj-spice or jj-stack
+## Acknowledgement
 
-[jj-spice](https://github.com/alejoborbo/jj-spice) integrates with jj at a lower level using jj's Rust library and owns stack manipulation. blackbelt is deliberately bring-your-own-workflow: it leaves rebase, split, squash, arrange, submit, and merge operations to `jj` and GitHub operations. Its focus is reviewer-facing diagrams, diagnostics, and PR-aware navigation.
+jujutsu blackbelt is influence by [git-spice](https://github.com/abhinav/git-spice), [graphite-cli](https://graphite.com/) and [jj-spice](https://github.com/alejoborbo/jj-spice).
+
+This project started initially as some person scripts which I ported to Go. I initially wanted to contribute to jj-spice to fix some of the issue I was encountering, however, jj-spice’s deep integration with JJ’s internal (still pre-1.0) Rust APIs are costly to maintain, so I built a lighter-weight tool around the stable higher-level interface instead. 
 
 ## Development
 
