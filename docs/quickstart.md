@@ -44,14 +44,9 @@ blackbelt finds the unique PR root between trunk and your current change, then i
 Useful next moves:
 
 ```console
-jj stack up             # edit the child PR
-jj stack down           # edit the parent PR
-jj stack goto 1234      # edit PR #1234
 jj stack order          # check GitHub PR bases
 jj stack draw           # update the diagram on every PR
 ```
-
-Navigation acts on PR bookmarks, not individual commits. Add `--dry-run` to a navigation command when you only want to see its destination.
 
 ## What `draw` posts
 
@@ -61,7 +56,7 @@ Merged ancestors stay visible, even after their bookmark is forgotten, as long a
 
 ## That's it
 
-Keep arranging commits with jj and opening PRs with your existing `gh` workflow. Reach for blackbelt when you want to see, navigate, validate, or explain the PR stack.
+Keep arranging commits with jj and opening PRs with your existing `gh` workflow. Reach for blackbelt when you want to see, validate, or explain the PR stack.
 
 [Learn the stack model](concepts.md){ .md-button }
 [Browse every command](commands.md){ .md-button .md-button--primary }

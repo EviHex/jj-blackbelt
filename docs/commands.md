@@ -24,7 +24,7 @@ bb stack log [--all] [--json] [--revisions REVSET]
 
 ## `bb stack draw`
 
-Create or update the stack-navigation comment on every PR.
+Create or update the stack diagram comment on every PR.
 
 ```console
 bb stack draw
@@ -43,27 +43,6 @@ bb stack order [--all] [--fix] [--json]
 ```
 
 The default is read-only and exits unsuccessfully when mismatches exist. `--fix` explicitly retargets only mismatched PRs.
-
-## Navigation
-
-Navigation edits the jj commit at a PR bookmark. It skips commits inside a multi-commit PR.
-
-```console
-bb stack up [n] [--dry-run] [--json]
-bb stack down [n] [--dry-run] [--json]
-bb stack top [--dry-run] [--json]
-bb stack bottom [--dry-run] [--json]
-bb stack goto <PR-number|bookmark> [--dry-run] [--json]
-```
-
-- `up`: move toward a child PR; prompts when the tree splits.
-- `down`: move toward the parent PR.
-- `top`: follow the current branch to a topmost PR; prompts at splits.
-- `bottom`: move to the lowest still-live PR in the stack.
-- `goto`: accept `123`, `#123`, or a bookmark name.
-- `--dry-run`, `-n`: print the resolved destination without calling `jj edit`.
-
-In non-interactive use, an ambiguous split reports the available children rather than guessing.
 
 ## `bb util alias`
 

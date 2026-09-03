@@ -45,12 +45,6 @@ PR stack — 3 PRs
 
     Put one clickable, idempotent diagram on every PR with status, commits, and a “you are here” marker.
 
--   :material-compass-outline:{ .lg .middle } **Navigate at PR granularity**
-
-    ---
-
-    Move up, down, top, bottom, or directly to a PR—even when a PR contains several jj commits.
-
 -   :material-stethoscope:{ .lg .middle } **Catch a flattened stack**
 
     ---
@@ -73,6 +67,6 @@ $ jj stack draw
 No import. No repository initialization. No second stack database. The alias simply delegates `jj stack ...` to `bb stack ...`.
 
 !!! tip "blackbelt complements jj"
-    jj remains the source of truth and owns your commit graph. blackbelt is the thin PR-awareness layer: discovery, diagrams, diagnostics, and navigation.
+    jj remains the source of truth and owns your commit graph. blackbelt is the thin PR-awareness layer: discovery, diagrams, and diagnostics.
 
 [Take the two-minute quickstart →](quickstart.md){ .md-button .md-button--primary }

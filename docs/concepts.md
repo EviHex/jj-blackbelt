@@ -7,7 +7,7 @@ blackbelt does not maintain a parallel branch database. It combines two sources 
 - jj supplies commits, ancestry, bookmarks, and the current change.
 - GitHub supplies pull requests, their base branches, status, reviews, comments, and commit comparisons.
 
-One remotely tracked bookmark maps to one PR. A PR may contain multiple jj commits; navigation still treats it as one node.
+One remotely tracked bookmark maps to one PR. A PR may contain multiple jj commits; commands treat it as one node.
 
 ## Default discovery
 
@@ -37,4 +37,4 @@ This means the diagram can keep a merged parent in its original position while b
 
 blackbelt does not replace jj's graph operations or dictate how you submit changes. Use jj for rebasing, splitting, squashing, and arranging commits; use your existing `gh` flow for creating and merging PRs.
 
-[jj-spice](https://github.com/alejoborbo/jj-spice) is intentionally lower-level: it uses jj's Rust library and owns stack manipulation. blackbelt aims to be a lightweight, bring-your-own-stacked-PR companion focused on visibility, diagnostics, and navigation.
+[jj-spice](https://github.com/alejoborbo/jj-spice) is intentionally lower-level: it uses jj's Rust library and owns stack manipulation. blackbelt aims to be a lightweight, bring-your-own-stacked-PR companion focused on visibility and diagnostics.

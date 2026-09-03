@@ -14,8 +14,10 @@ func installRootHelp(root *cobra.Command, value config.Config) {
 	root.SetHelpFunc(func(command *cobra.Command, args []string) {
 		if command != root {
 			defaultHelp(command, args)
+
 			return
 		}
+
 		writeRootHelp(command.OutOrStdout(), value)
 	})
 }
@@ -24,7 +26,7 @@ func writeRootHelp(output io.Writer, value config.Config) {
 	fmt.Fprintln(output, "Usage: bb <command> [flags]")
 	fmt.Fprintln(output)
 	fmt.Fprintln(output, "Make jj PR stacks obvious on GitHub.")
-	fmt.Fprintln(output, "Keep jj as your workflow; use blackbelt for PR-aware views, navigation, diagrams, and diagnostics.")
+	fmt.Fprintln(output, "Keep jj as your workflow; use blackbelt for PR-aware views, diagrams, and diagnostics.")
 	fmt.Fprintln(output)
 
 	writer := tabwriter.NewWriter(output, 0, 4, 2, ' ', 0)
@@ -34,12 +36,6 @@ func writeRootHelp(output io.Writer, value config.Config) {
 	fmt.Fprintln(writer, "  stack (s) draw (diagram, d)\tCreate or update the diagram on every PR")
 	fmt.Fprintln(writer, "  stack (s) order\tCheck GitHub PR bases against the jj stack")
 	fmt.Fprintln(writer)
-	fmt.Fprintln(writer, "Navigation")
-	fmt.Fprintln(writer, "  stack (s) up [n]\tMove to a child PR")
-	fmt.Fprintln(writer, "  stack (s) down [n]\tMove to a parent PR")
-	fmt.Fprintln(writer, "  stack (s) top\tMove to a topmost PR")
-	fmt.Fprintln(writer, "  stack (s) bottom\tMove to the bottom PR")
-	fmt.Fprintln(writer, "  stack (s) goto <PR|bookmark>\tMove directly to a PR")
 	fmt.Fprintln(writer)
 	fmt.Fprintln(writer, "Setup")
 	fmt.Fprintln(writer, "  doctor\tCheck jj, GitHub CLI, authentication, and repository access")
